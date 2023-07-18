@@ -12,7 +12,7 @@ from langchain.document_loaders import WebBaseLoader
 _ = load_dotenv(find_dotenv()) 
 
 
-os.environ["OPENAI_API_KEY"] = "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"
+
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
