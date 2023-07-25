@@ -1,51 +1,110 @@
+from dataclasses import dataclass
+from typing import Literal
 import streamlit as st
-from dotenv import load_dotenv
+from langchain.callbacks import get_openai_callback
+import streamlit.components.v1 as components
 from functions import *
-from html_templates import bot_template,css,user_template
-import os 
-import imghdr
+
+if "conversation" not in st.session_state:
+    st.session_state.conversation = None 
+@dataclass
+class Message:
+    """Class for keeping track of a chat message."""
+    origin: Literal["human", "ai"]
+    message: str
+
+def load_css():
+    css_file = "static/styles.css"
+    with open(css_file, "r") as f:
+        css = f"<style>{f.read()}</style>"
+        st.markdown(css, unsafe_allow_html=True)
+
+def initialize_session_state():
+    if "history" not in st.session_state:
+        st.session_state.history = []
 
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+def on_click_callback():
+    with get_openai_callback() as cb:
+        human_prompt = st.session_state.human_prompt
+        try:
+            llm_response = st.session_state.conversation({
+                'question': human_prompt
+            })
 
-def heandle_userinput(user_input):
-    response = st.session_state.conversation({'question':user_input})
-    st.session_state.chat_history = response['chat_history']
+            st.session_state.history.append(
+                Message("human", human_prompt)
+            )
+            st.session_state.history.append(
+                Message("ai", llm_response["answer"])  
+            )
 
-    for i , message in enumerate(st.session_state.chat_history):
-        if i%2==0:
-            st.write(user_template.replace("{{MSG}}",message.content),unsafe_allow_html=True)
-        else:
-            st.write(bot_template.replace("{{MSG}}",message.content),unsafe_allow_html=True)
+            # Log the response to the Streamlit console for debugging
+            print("LLM Response:", llm_response)
+
+        except Exception as e:
+            # Print the detailed error message to the Streamlit console
+            print("Please upload data")
+        
+
+load_css()
+initialize_session_state()
+
+st.title("AsisaAI Chatbot 🤖")
+
+chat_placeholder = st.container()
+prompt_placeholder = st.form("chat-form")
+credit_card_placeholder = st.empty()
+
+with chat_placeholder:
+    for chat in st.session_state.history:
+        div = f"""
+        <div class="chat-row 
+            {'' if chat.origin == 'ai' else 'row-reverse'}">
+            <img class="chat-icon" src="static/{
+                'ai_icon.jpg' if chat.origin == 'ai' 
+                              else 'user_icon.png'}"
+                 width=32 height=32>
+            <div class="chat-bubble
+            {'ai-bubble' if chat.origin == 'ai' else 'human-bubble'}">
+                &#8203;{chat.message}
+            </div>
+        </div>
+        """
+        st.markdown(div, unsafe_allow_html=True)
 
 
-def main():
-    load_dotenv()
-    st.set_page_config(page_title="Chat with multiple data type ",page_icon=":books:")
-    st.write(css,unsafe_allow_html=True)
-     
-    if "conversation" not in st.session_state:
-        st.session_state.conversation = None 
-    if "chat_history" not in st.session_state:
-        st.session_state.chat_history = None
-    st.header("Chat with multiple data type :books: ")
-    user_question = st.text_input("As a question about your document")
-    if user_question:
-        heandle_userinput(user_question)
 
-     
+
+
     
-    # with st.sidebar:
-    with st.sidebar:
+    for _ in range(3):
+        st.markdown("")
+
+with prompt_placeholder:
+    st.markdown("**Chat**")
+    cols = st.columns((6, 1))
+    cols[0].text_input(
+        "Chat",
+        value="Hello bot",
+        label_visibility="collapsed",
+        key="human_prompt",
+    )
+    cols[1].form_submit_button(
+        "Submit", 
+        type="primary", 
+        on_click=on_click_callback, 
+    )
+with st.sidebar:
         st.subheader("Your documents")
-        pdf_docs =st.file_uploader("Upload your data",accept_multiple_files=True)
-        st.subheader("You tuube or web site link")
+        uploaded_files =st.file_uploader("Upload your data",accept_multiple_files=True)
+        st.subheader("YouTube video or web site link")
         link =  st.text_input("Link")
 
         if st.button("Procress"):
             with st.spinner("Procressing"):
                 # get pdf text
-                raw_text = get_pdf_text(pdf_docs)
+                raw_text = get_text_from_file(uploaded_files)
                 # get text from url 
                 url_text = load_url(link)
                 # merge  url text and raw text
@@ -57,14 +116,26 @@ def main():
                 st.session_state.conversation = get_conversation_chain(vectorstore)
             
             
-             
+components.html("""
+<script>
+const streamlitDoc = window.parent.document;
 
-        
+const buttons = Array.from(
+    streamlitDoc.querySelectorAll('.stButton > button')
+);
+const submitButton = buttons.find(
+    el => el.innerText === 'Submit'
+);
 
-
-
-
-
-if __name__ == "__main__":
-    main()
-          
+streamlitDoc.addEventListener('keydown', function(e) {
+    switch (e.key) {
+        case 'Enter':
+            submitButton.click();
+            break;
+    }
+});
+</script>
+""", 
+    height=0,
+    width=0,
+)
