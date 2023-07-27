@@ -12,8 +12,7 @@ from langchain.document_loaders import WebBaseLoader
 import csv
 import openpyxl
 import pandas as pd
-_ = load_dotenv(find_dotenv()) 
-
+_ = load_dotenv(find_dotenv())
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def get_pdf_text(pdf_docs):
