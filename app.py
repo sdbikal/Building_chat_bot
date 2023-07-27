@@ -23,28 +23,35 @@ def initialize_session_state():
     if "history" not in st.session_state:
         st.session_state.history = []
 
-
 def on_click_callback():
     with get_openai_callback() as cb:
         human_prompt = st.session_state.human_prompt
-        try:
-            llm_response = st.session_state.conversation({
-                'question': human_prompt
-            })
-
-            st.session_state.history.append(
-                Message("human", human_prompt)
-            )
-            st.session_state.history.append(
-                Message("ai", llm_response["answer"])  
-            )
-
-            # Log the response to the Streamlit console for debugging
-            print("LLM Response:", llm_response)
-
-        except Exception as e:
-            # Print the detailed error message to the Streamlit console
+        
+        if not human_prompt:
             llm_response = "Please upload data or enter a link"
+        else:
+            try:
+                llm_response = st.session_state.conversation({
+                    'question': human_prompt
+                })
+
+                st.session_state.history.append(
+                    Message("human", human_prompt)
+                )
+                st.session_state.history.append(
+                    Message("ai", llm_response["answer"])  
+                )
+
+                # Log the response to the Streamlit console for debugging
+                print("LLM Response:", llm_response)
+
+            except Exception as e:
+                # Print the detailed error message to the Streamlit console
+                llm_response = "An error occurred during processing."
+            
+        st.session_state.human_prompt = ""  # Clear the user input after processing
+
+
             
         
 
