@@ -62,10 +62,6 @@ with chat_placeholder:
         div = f"""
         <div class="chat-row 
             {'' if chat.origin == 'ai' else 'row-reverse'}">
-            <img class="chat-icon" src="static/{
-                'ai_icon.jpg' if chat.origin == 'ai' 
-                              else 'user_icon.png'}"
-                 width=32 height=32>
             <div class="chat-bubble
             {'ai-bubble' if chat.origin == 'ai' else 'human-bubble'}">
                 &#8203;{chat.message}
@@ -106,8 +102,10 @@ with st.sidebar:
             with st.spinner("Procressing"):
                 # get pdf text
                 raw_text = get_text_from_file(uploaded_files)
-                # get text from url 
-                url_text = load_url(link)
+                # get text from url
+                url_text = ""
+                if link: 
+                    url_text = load_url(link)
                 # merge  url text and raw text
                 raw_text+=url_text# get chunks
                 chunks = get_text_chunks(raw_text)
