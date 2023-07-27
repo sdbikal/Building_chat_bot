@@ -44,7 +44,8 @@ def on_click_callback():
 
         except Exception as e:
             # Print the detailed error message to the Streamlit console
-            print("Please upload data")
+            llm_response = "Please upload data or enter a link"
+            
         
 
 load_css()
