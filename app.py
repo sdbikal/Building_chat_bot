@@ -103,7 +103,8 @@ with st.sidebar:
         st.subheader("Your documents")
         uploaded_files =st.file_uploader("Upload your data",accept_multiple_files=True)
         st.subheader("YouTube video or web site link")
-        link =  st.text_input("Link")
+        links =  st.text_input("Link")
+        links = links.split(',')
 
         if st.button("Procress"):
             with st.spinner("Procressing"):
@@ -111,8 +112,10 @@ with st.sidebar:
                 raw_text = get_text_from_file(uploaded_files)
                 # get text from url
                 url_text = ""
-                if link: 
-                    url_text = load_url(link)
+                if len(links) > 0: 
+                    for link in links:
+                        url_text += load_url(link)
+                        print(url_text)
                 # merge  url text and raw text
                 raw_text+=url_text# get chunks
                 chunks = get_text_chunks(raw_text)
