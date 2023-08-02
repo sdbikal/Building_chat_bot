@@ -9,7 +9,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import WebBaseLoader
-import csv
+import re
 import openpyxl
 import pandas as pd
 _ = load_dotenv(find_dotenv())
@@ -56,7 +56,6 @@ def detect_file_type(file_path):
         file_type = 'other'
     return file_type
     
-import re
 def get_text_from_file(files):
     """
     Function to handle PDF, CSV, and Excel files based on their file type.
@@ -72,8 +71,6 @@ def get_text_from_file(files):
               df = pd.read_csv(file)
               all_text = df.to_string(index=False,header=False)
               text+=re.sub(r'\s+', ' ', all_text)
-
-
         elif type_file == 'excel':
             text += get_excel_text([file])
         else:
@@ -81,12 +78,6 @@ def get_text_from_file(files):
 
         
     return text 
-
-
-
-        
-        
-
 
 def get_text_chunks(raw_text,chunk_size=1000,chunk_overlap=200):
     """
@@ -121,11 +112,12 @@ def get_conversation_chain(vectorstore):
     return conversation_chain 
 
 
-def load_url(url):
-    url = str(url)
-    loader = WebBaseLoader(url)
-    data = loader.load()
+def load_url(links):
     text = ""
-    for i in range(len(data)):
-        text+=data[i].page_content
+    for link in links:
+        link = str(link)
+        loader = WebBaseLoader(link)
+        data = loader.load()
+        for i in range(len(data)):
+            text+=data[i].page_content
     return str(text)

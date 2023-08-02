@@ -58,7 +58,7 @@ def on_click_callback():
 load_css()
 initialize_session_state()
 
-st.title("AsisaAI Chatbot 🤖")
+st.title("Chatbot 🤖")
 
 chat_placeholder = st.container()
 prompt_placeholder = st.form("chat-form")
@@ -106,16 +106,15 @@ with st.sidebar:
         links =  st.text_input("Link")
         links = links.split(',')
 
-        if st.button("Procress"):
+        if st.button("Progress"):
             with st.spinner("Procressing"):
                 # get pdf text
+                raw_text = ""
                 raw_text = get_text_from_file(uploaded_files)
                 # get text from url
                 url_text = ""
                 if len(links) > 0: 
-                    for link in links:
-                        url_text += load_url(link)
-                        print(url_text)
+                    url_text += load_url(links)
                 # merge  url text and raw text
                 raw_text+=url_text# get chunks
                 chunks = get_text_chunks(raw_text)
