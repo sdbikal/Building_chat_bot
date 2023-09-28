@@ -5,8 +5,16 @@ from langchain.callbacks import get_openai_callback
 import streamlit.components.v1 as components
 from functions import *
 
+st.set_page_config(
+    page_title="CHild"
+
+)
+
+
 if "conversation" not in st.session_state:
     st.session_state.conversation = None 
+if "uploaded_text" not in st.session_state:
+    st.session_state.uploaded_text = None
 @dataclass
 class Message:
     """Class for keeping track of a chat message."""
@@ -101,23 +109,22 @@ with prompt_placeholder:
     )
 with st.sidebar:
         st.subheader("Your documents")
-        uploaded_files =st.file_uploader("Upload your data",accept_multiple_files=True)
+        uploaded_files = st.file_uploader("Upload your data",accept_multiple_files=True)
         st.subheader("YouTube video or web site link")
-        links =  st.text_input("Link")
-        links = links.split(',')
-
+        # links =  st.text_input("Link")
+        # links = links.split(',')
         if st.button("Progress"):
-            with st.spinner("Procressing"):
+            with st.spinner("Progressing"):
                 # get pdf text
                 raw_text = ""
-                raw_text = get_text_from_file(uploaded_files)
+                st.session_state['uploaded_text'] = get_text_from_file(uploaded_files)
                 # get text from url
                 url_text = ""
-                if len(links) > 0: 
-                    url_text += load_url(links)
+                # if len(links) > 0: 
+                #     url_text += load_url(links)
                 # merge  url text and raw text
-                raw_text+=url_text# get chunks
-                chunks = get_text_chunks(raw_text)
+                st.session_state['uploaded_text']+=url_text# get chunks
+                chunks = get_text_chunks(st.session_state['uploaded_text'])
                 # get vectorstore 
                 vectorstore = get_vectorstore(chunks=chunks)
                 # get conversation chain

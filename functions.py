@@ -12,7 +12,6 @@ from langchain.document_loaders import WebBaseLoader
 import re
 import openpyxl
 import pandas as pd
-from google.cloud import translate
 _ = load_dotenv(find_dotenv())
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -122,41 +121,3 @@ def load_url(links):
         for i in range(len(data)):
             text+=data[i].page_content
     return str(text)
-
-
-
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "translate.json"
-translation_client = translate.TranslationServiceClient()
-
-def translate_text(text, target_language=None):
-    project_id = "focal-road-362517"
-    location = "global"
-
-    parent = f"projects/{project_id}/locations/{location}"
-    contents = [text]
-    target_language_code = target_language
-
-    response = translation_client.translate_text(
-        parent=parent,
-        contents=contents,
-        target_language_code=target_language_code,
-    )
-
-    translation = response.translations[0].translated_text
-    return translation
-
-# create a function for language detection
-def detect_language(text):
-    project_id = "focal-road-362517"
-    location = "global"
-
-    parent = f"projects/{project_id}/locations/{location}"
-    content = text
-    response = translation_client.detect_language(
-        parent=parent,
-        content=content,
-        mime_type="text/plain",  # mime types: text/plain, text/html
-    )
-
-    # display translation and language code
-    return response.languages[0].language_code
