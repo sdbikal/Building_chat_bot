@@ -110,7 +110,7 @@ with prompt_placeholder:
 with st.sidebar:
         st.subheader("Your documents")
         uploaded_files = st.file_uploader("Upload your data",accept_multiple_files=True)
-        st.subheader("YouTube video or web site link")
+        # st.subheader("YouTube video or web site link")
         # links =  st.text_input("Link")
         # links = links.split(',')
         if st.button("Progress"):
