@@ -50,8 +50,8 @@ def detect_file_type(file_path):
         file_type = 'pdf'
     elif str(file_path).lower().endswith('.csv'):
         file_type = 'csv'
-    elif str(file_path).lower().endswith(('.xlsx', '.xls')):
-        file_type = 'excel'
+    # elif str(file_path).lower().endswith(('.xlsx', '.xls')):
+    #     file_type = 'excel'
     else:
         file_type = 'other'
     return file_type
