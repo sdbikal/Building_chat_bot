@@ -9,25 +9,83 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import WebBaseLoader
-_ = load_dotenv(find_dotenv()) 
-
-
-os.environ["OPENAI_API_KEY"] = "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"
-
+import csv
+import openpyxl
+import pandas as pd
+_ = load_dotenv(find_dotenv())
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def get_pdf_text(pdf_docs):
     """
     PDF documents are converted to text format
-    input : PDF documnts
-    output : text 
+    input: PDF documents (list of file paths)
+    output: Concatenated text from all PDF pages
     """
     text = ""
     for pdf in pdf_docs:
         pdf_reader = PdfReader(pdf)
         for page in pdf_reader.pages:
             text += page.extract_text()
+    return text
+
+def get_excel_text(excel_files):
+    """
+    Excel files are read, and text from all cells is extracted and concatenated.
+    input: Excel files (list of file paths)
+    output: Concatenated text from all Excel files and all cells
+    """
+    text = ""
+    for excel_file in excel_files:
+        wb = openpyxl.load_workbook(excel_file)
+        for sheet_name in wb.sheetnames:
+            sheet = wb[sheet_name]
+            for row in sheet.iter_rows():
+                for cell in row:
+                    if cell.value is not None:
+                        text += str(cell.value) + " "
+    return text
+
+def detect_file_type(file_path):
+    if str(file_path).lower().endswith('.pdf'):
+        file_type = 'pdf'
+    elif str(file_path).lower().endswith('.csv'):
+        file_type = 'csv'
+    elif str(file_path).lower().endswith(('.xlsx', '.xls')):
+        file_type = 'excel'
+    else:
+        file_type = 'other'
+    return file_type
+    
+import re
+def get_text_from_file(files):
+    """
+    Function to handle PDF, CSV, and Excel files based on their file type.
+    input: File path of the uploaded file
+    output: Text extracted from the file
+    """
+    text = ""
+    for file in files:
+        type_file = detect_file_type(file.name)
+        if type_file == 'pdf':
+            text += get_pdf_text([file])
+        elif type_file == 'csv': 
+              df = pd.read_csv(file)
+              all_text = df.to_string(index=False,header=False)
+              text+=re.sub(r'\s+', ' ', all_text)
+
+
+        elif type_file == 'excel':
+            text += get_excel_text([file])
+        else:
+            print(f"File type not supported,{file.name}") 
+
+        
     return text 
+
+
+
+        
+        
 
 
 def get_text_chunks(raw_text,chunk_size=1000,chunk_overlap=200):
