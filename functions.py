@@ -28,22 +28,22 @@ def get_pdf_text(pdf_docs):
             text += page.extract_text()
     return text
 
-def get_excel_text(excel_files):
-    """
-    Excel files are read, and text from all cells is extracted and concatenated.
-    input: Excel files (list of file paths)
-    output: Concatenated text from all Excel files and all cells
-    """
-    text = ""
-    for excel_file in excel_files:
-        wb = openpyxl.load_workbook(excel_file)
-        for sheet_name in wb.sheetnames:
-            sheet = wb[sheet_name]
-            for row in sheet.iter_rows():
-                for cell in row:
-                    if cell.value is not None:
-                        text += str(cell.value) + " "
-    return text
+# def get_excel_text(excel_files):
+#     """
+#     Excel files are read, and text from all cells is extracted and concatenated.
+#     input: Excel files (list of file paths)
+#     output: Concatenated text from all Excel files and all cells
+#     """
+#     text = ""
+#     for excel_file in excel_files:
+#         wb = openpyxl.load_workbook(excel_file)
+#         for sheet_name in wb.sheetnames:
+#             sheet = wb[sheet_name]
+#             for row in sheet.iter_rows():
+#                 for cell in row:
+#                     if cell.value is not None:
+#                         text += str(cell.value) + " "
+#     return text
 
 def detect_file_type(file_path):
     if str(file_path).lower().endswith('.pdf'):
