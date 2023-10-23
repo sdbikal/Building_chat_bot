@@ -74,8 +74,8 @@ def get_text_from_file(files):
               text+=re.sub(r'\s+', ' ', all_text)
 
 
-        elif type_file == 'excel':
-            text += get_excel_text([file])
+        # elif type_file == 'excel':
+        #     text += get_excel_text([file])
         else:
             print(f"File type not supported,{file.name}") 
 
