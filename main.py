@@ -5,8 +5,6 @@ from langchain.callbacks import get_openai_callback
 import streamlit.components.v1 as components
 from functions import *
 
-if "conversation" not in st.session_state:
-    st.session_state.conversation = None 
 @dataclass
 class Message:
     """Class for keeping track of a chat message."""
@@ -26,33 +24,19 @@ def initialize_session_state():
 def on_click_callback():
     with get_openai_callback() as cb:
         human_prompt = st.session_state.human_prompt
-        
-        if not human_prompt:
-            llm_response = "Please upload data or enter a link"
-        else:
-            try:
-                llm_response = st.session_state.conversation({
-                    'question': human_prompt
-                })
-
-                st.session_state.history.append(
+        try:
+            llm_response = qa_model(human_prompt)
+            st.session_state.history.append(
                     Message("human", human_prompt)
                 )
-                st.session_state.history.append(
-                    Message("ai", llm_response["answer"])  
+            st.session_state.history.append(
+                    Message("ai", llm_response)  
                 )
+            print("Response from get_vector_store:", llm_response)
 
-                # Log the response to the Streamlit console for debugging
-                print("LLM Response:", llm_response)
-
-            except Exception as e:
-                # Print the detailed error message to the Streamlit console
-                llm_response = "An error occurred during processing."
-            
-        st.session_state.human_prompt = ""  # Clear the user input after processing
-
-
-            
+        except Exception as e:
+            llm_response = "An error occurred during processing."
+    st.session_state.human_prompt = ""  
         
 
 load_css()
@@ -77,11 +61,6 @@ with chat_placeholder:
         """
         st.markdown(div, unsafe_allow_html=True)
 
-
-
-
-
-    
     for _ in range(3):
         st.markdown("")
 
@@ -96,35 +75,9 @@ with prompt_placeholder:
     )
     cols[1].form_submit_button(
         "Submit", 
-        type="primary", 
         on_click=on_click_callback, 
     )
-with st.sidebar:
-        st.subheader("Your documents")
-        uploaded_files =st.file_uploader("Upload your data",accept_multiple_files=True)
-        st.subheader("YouTube video or web site link")
-        links =  st.text_input("Link")
-        links = links.split(',')
 
-        if st.button("Procress"):
-            with st.spinner("Procressing"):
-                # get pdf text
-                raw_text = get_text_from_file(uploaded_files)
-                # get text from url
-                url_text = ""
-                if len(links) > 0: 
-                    for link in links:
-                        url_text += load_url(link)
-                        print(url_text)
-                # merge  url text and raw text
-                raw_text+=url_text# get chunks
-                chunks = get_text_chunks(raw_text)
-                # get vectorstore 
-                vectorstore = get_vectorstore(chunks=chunks)
-                # get conversation chain
-                st.session_state.conversation = get_conversation_chain(vectorstore)
-            
-            
 components.html("""
 <script>
 const streamlitDoc = window.parent.document;
