@@ -25,7 +25,9 @@ def on_click_callback():
     with get_openai_callback() as cb:
         human_prompt = st.session_state.human_prompt
         try:
+            print(human_prompt)
             llm_response = qa_model(human_prompt)
+            print("HI")
             st.session_state.history.append(
                     Message("human", human_prompt)
                 )
