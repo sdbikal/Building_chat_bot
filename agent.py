@@ -5,6 +5,7 @@ from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import Qdrant
 from langchain_openai import OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
+from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -22,6 +23,17 @@ vectorstore = Qdrant(
         collection_name=os.getenv("QDRANT_COLLECTION_NAME"),
         embeddings=embeddings
     )
+
+def translatorAgent(text:str, target : str , model="gpt-3.5-turbo") -> str :
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    prompt = f"translate this sentence into {target}  ###sentence {text}"
+    messages = [{"role": "user", "content": prompt}]
+    response = client.chat.completions.create(
+        model="gpt-4-0125-preview",
+        messages = messages, 
+        temperature = 0
+    )
+    return response.choices[0].message.content
 
 def qa_dev(user_query:str):
     llm = ChatOpenAI(model='gpt-4-1106-preview')
