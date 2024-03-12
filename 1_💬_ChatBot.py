@@ -5,7 +5,7 @@ from langchain.callbacks import get_openai_callback
 import streamlit.components.v1 as components
 from functions import *
 import os 
-logo_path = os.path.join("static", "dialogXR_Typography.jpg")
+logo_path = os.path.join("static", "dialogXR_Typography.png")
 st.set_page_config(
     page_title="CHild"
 
