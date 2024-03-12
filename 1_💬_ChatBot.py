@@ -4,7 +4,8 @@ import streamlit as st
 from langchain.callbacks import get_openai_callback
 import streamlit.components.v1 as components
 from functions import *
-
+import os 
+logo_path = os.path.join("static", "dialogXR_Typography.jpg")
 st.set_page_config(
     page_title="CHild"
 
@@ -73,6 +74,8 @@ prompt_placeholder = st.form("chat-form")
 credit_card_placeholder = st.empty()
 
 with chat_placeholder:
+    st.image(logo_path, use_container_width=True)
+
     for chat in st.session_state.history:
         div = f"""
         <div class="chat-row 
