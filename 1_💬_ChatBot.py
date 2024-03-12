@@ -74,7 +74,7 @@ prompt_placeholder = st.form("chat-form")
 credit_card_placeholder = st.empty()
 
 with chat_placeholder:
-    st.image(logo_path, use_container_width=True)
+    st.image(logo_path)
 
     for chat in st.session_state.history:
         div = f"""
