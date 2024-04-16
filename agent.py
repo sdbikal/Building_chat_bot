@@ -5,6 +5,9 @@ from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import Qdrant
 from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate 
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -24,11 +27,22 @@ vectorstore = Qdrant(
     )
 
 def qa_dev(user_query:str):
-    llm = ChatOpenAI(model='gpt-4-1106-preview')
-    qa = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=vectorstore.as_retriever()
-        )
-    result = qa.invoke({'query':user_query})
-    return result['result']
+    # Prompt template
+    template = """Answer the question based only on the following context, which can include text and tables:
+    {context}
+    Question: {question}
+    """
+    prompt = ChatPromptTemplate.from_template(template)
+
+    # LLM
+    model = ChatOpenAI(temperature=0, model='gpt-4-1106-preview')
+
+    # RAG pipeline
+    chain = (
+        {"context": vectorstore.as_retriever(), "question": RunnablePassthrough()}
+        | prompt
+        | model
+        | StrOutputParser()
+    )
+    response = chain.invoke(user_query)
+    return response
