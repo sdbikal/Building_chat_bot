@@ -1,7 +1,7 @@
 import streamlit as st
 from agent import qa_dev
 
-st.title("AHB AI Chat bot demo")
+st.title("CS GPT")
 
 
 if "messages" not in st.session_state:
