@@ -10,7 +10,7 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-if question := st.chat_input("Hello and welcome to dialogXR, your dedicated AI assistant for child welfare services."):
+if question := st.chat_input("Hello and welcome to SRTIP."):
     st.session_state.messages.append({"role": "user", "content": question})
     with st.chat_message("user"):
         st.markdown(question)
