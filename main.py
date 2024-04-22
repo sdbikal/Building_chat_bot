@@ -1,8 +1,7 @@
 import streamlit as st
 from agent import qa_dev
 
-st.title("CS GPT")
-st.image("dialogXR_Typography.jpg")
+st.title("SRTIP DEMO")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
