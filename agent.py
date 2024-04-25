@@ -28,7 +28,9 @@ vectorstore = Qdrant(
 
 def qa_dev(user_query:str):
     # Prompt template
-    template = """Answer the question based only on the following context, which can include text and tables:
+    template = """
+    You are a online asist  at a company for help company's employers  and you have greate data analys skils
+    You are interacting with a user who is asking you some help  about the  tasks.
     {context}
     Question: {question}
     """
